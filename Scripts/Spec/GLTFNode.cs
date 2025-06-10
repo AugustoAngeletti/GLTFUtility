@@ -168,9 +168,9 @@ namespace Siccity.GLTFUtility {
 		private static void CreateNodeListRecursive(Transform transform, List<ExportResult> nodes) {
 			ExportResult node = new ExportResult();
 			node.name = transform.name;
-			node.translation = transform.localPosition;
-			node.rotation = transform.localRotation;
-			node.scale = transform.localScale;
+			node.translation = transform.position;      // Cambiato da localPosition
+			node.rotation = transform.rotation;         // Cambiato da localRotation  
+			node.scale = transform.lossyScale;          // Cambiato da localScale
 			node.renderer = transform.gameObject.GetComponent<MeshRenderer>();
 			node.filter = transform.gameObject.GetComponent<MeshFilter>();
 			node.skinnedRenderer = transform.gameObject.GetComponent<SkinnedMeshRenderer>();
