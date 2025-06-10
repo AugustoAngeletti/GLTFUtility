@@ -165,28 +165,40 @@ namespace Siccity.GLTFUtility {
 			return nodes;
 		}
 
-		private static void CreateNodeListRecursive(Transform transform, List<ExportResult> nodes) {
+		private static void CreateNodeListRecursive(Transform transform, List<ExportResult> nodes)
+		{
 			ExportResult node = new ExportResult();
 			node.name = transform.name;
-			node.translation = transform.position;      // Cambiato da localPosition
-			node.rotation = transform.rotation;         // Cambiato da localRotation  
-			node.scale = transform.lossyScale;          // Cambiato da localScale
+
+			// Usa le trasformazioni locali ma con le correzioni di coordinate per glTF
+			Vector3 localPos = transform.localPosition;
+			Quaternion localRot = transform.localRotation;
+			Vector3 localScale = transform.localScale;
+
+			// Conversione coordinate Unity -> glTF (sistema destrogiro -> levogiro)
+			node.translation = new Vector3(-localPos.x, localPos.y, localPos.z);
+			node.rotation = new Quaternion(localRot.x, -localRot.y, -localRot.z, localRot.w);
+			node.scale = localScale;
+
 			node.renderer = transform.gameObject.GetComponent<MeshRenderer>();
 			node.filter = transform.gameObject.GetComponent<MeshFilter>();
 			node.skinnedRenderer = transform.gameObject.GetComponent<SkinnedMeshRenderer>();
+
 			nodes.Add(node);
-			if (transform.childCount > 0) {
-				if (transform.childCount > 0) {
-					node.children = new int[transform.childCount];
-					for (int i = 0; i < node.children.Length; i++) {
-						Transform child = transform.GetChild(i);
-						node.children[i] = nodes.Count;
-						CreateNodeListRecursive(child, nodes);
-					}
+
+			// RIPRISTINA la creazione della gerarchia
+			if (transform.childCount > 0)
+			{
+				node.children = new int[transform.childCount];
+				for (int i = 0; i < node.children.Length; i++)
+				{
+					Transform child = transform.GetChild(i);
+					node.children[i] = nodes.Count;
+					CreateNodeListRecursive(child, nodes);
 				}
 			}
 		}
-#endregion
+		#endregion
 	}
 
 	public static class GLTFNodeExtensions {
