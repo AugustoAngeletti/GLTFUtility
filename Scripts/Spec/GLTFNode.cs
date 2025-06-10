@@ -156,9 +156,7 @@ namespace Siccity.GLTFUtility {
 		public class ExportResult : GLTFNode {
 			[JsonIgnore] public MeshRenderer renderer;
 			[JsonIgnore] public MeshFilter filter;
-			[JsonIgnore] public SkinnedMeshRenderer skinnedRenderer;
-			[JsonIgnore] public new Matrix4x4 matrix;
-		}
+			[JsonIgnore] public SkinnedMeshRenderer skinnedRenderer;		}
 
 		
 
@@ -172,29 +170,28 @@ namespace Siccity.GLTFUtility {
 		{
 			ExportResult node = new ExportResult();
 			node.name = transform.name;
+			node.translation = transform.localPosition;
+			node.rotation = transform.localRotation;
+			node.scale = transform.localScale;
 
-			Vector3 localPos = transform.localPosition;
-			Quaternion localRot = transform.localRotation;
-			Vector3 localScale = transform.localScale;
+			// AGGIUNGI QUESTA PARTE: Calcola la matrice corretta dalle trasformazioni
+			// Invece di usare Matrix4x4.identity, usa le trasformazioni effettive
+			Matrix4x4 trs = Matrix4x4.TRS(transform.localPosition, transform.localRotation, transform.localScale);
 
-			// USA LA STESSA CONVERSIONE DEL TranslationConverter
-			node.translation = new Vector3(-localPos.x, localPos.y, localPos.z);  // Solo X invertito
-			node.rotation = localRot;  // Nessuna conversione per il quaternion
-			node.scale = localScale;   // Nessuna conversione per la scala
+			// Applica la conversione delle coordinate per glTF (flip X)
+			Vector3 pos = transform.localPosition;
+			pos.x = -pos.x;  // Flip X per coordinate glTF
+			trs = Matrix4x4.TRS(pos, transform.localRotation, transform.localScale);
 
-			// Rimuovi i debug log
-			// Debug.Log($"Export Node: {transform.name}");
-			// Debug.Log($"  Local Position: {localPos}");
-			// Debug.Log($"  Global Position: {transform.position}");
-			// Debug.Log($"  Parent: {(transform.parent ? transform.parent.name : "null")}");
+			node.matrix = trs;
 
+			// resto del codice rimane uguale...
 			node.renderer = transform.gameObject.GetComponent<MeshRenderer>();
 			node.filter = transform.gameObject.GetComponent<MeshFilter>();
 			node.skinnedRenderer = transform.gameObject.GetComponent<SkinnedMeshRenderer>();
 
 			nodes.Add(node);
 
-			// RIPRISTINA la creazione della gerarchia
 			if (transform.childCount > 0)
 			{
 				node.children = new int[transform.childCount];
