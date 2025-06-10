@@ -170,15 +170,20 @@ namespace Siccity.GLTFUtility {
 			ExportResult node = new ExportResult();
 			node.name = transform.name;
 
-			// Usa le trasformazioni locali ma con le correzioni di coordinate per glTF
 			Vector3 localPos = transform.localPosition;
 			Quaternion localRot = transform.localRotation;
 			Vector3 localScale = transform.localScale;
 
-			// Conversione coordinate Unity -> glTF (sistema destrogiro -> levogiro)
-			node.translation = new Vector3(-localPos.x, localPos.y, localPos.z);
-			node.rotation = new Quaternion(localRot.x, -localRot.y, -localRot.z, localRot.w);
-			node.scale = localScale;
+			// USA LA STESSA CONVERSIONE DEL TranslationConverter
+			node.translation = new Vector3(-localPos.x, localPos.y, localPos.z);  // Solo X invertito
+			node.rotation = localRot;  // Nessuna conversione per il quaternion
+			node.scale = localScale;   // Nessuna conversione per la scala
+
+			// Rimuovi i debug log
+			// Debug.Log($"Export Node: {transform.name}");
+			// Debug.Log($"  Local Position: {localPos}");
+			// Debug.Log($"  Global Position: {transform.position}");
+			// Debug.Log($"  Parent: {(transform.parent ? transform.parent.name : "null")}");
 
 			node.renderer = transform.gameObject.GetComponent<MeshRenderer>();
 			node.filter = transform.gameObject.GetComponent<MeshFilter>();
