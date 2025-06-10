@@ -50,6 +50,15 @@ namespace Siccity.GLTFUtility
 			{
 				GLTFObject gltfObject = CreateGLTFObject(root.transform);
 
+				// DEBUG: stampa il JSON per vedere cosa viene serializzato
+				string json = JsonConvert.SerializeObject(gltfObject, new JsonSerializerSettings()
+				{
+					NullValueHandling = NullValueHandling.Ignore,
+					Formatting = Formatting.Indented  // Per leggibilità
+				});
+				Debug.Log("JSON Export:");
+				Debug.Log(json);
+
 				// Create binary GLB file
 				byte[] glbData = CreateGLBFile(gltfObject);
 				File.WriteAllBytes(filepath, glbData);

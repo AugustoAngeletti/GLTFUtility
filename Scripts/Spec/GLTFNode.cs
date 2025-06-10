@@ -157,7 +157,10 @@ namespace Siccity.GLTFUtility {
 			[JsonIgnore] public MeshRenderer renderer;
 			[JsonIgnore] public MeshFilter filter;
 			[JsonIgnore] public SkinnedMeshRenderer skinnedRenderer;
+			[JsonIgnore] public new Matrix4x4 matrix;
 		}
+
+		
 
 		public static List<ExportResult> Export(Transform root) {
 			List<ExportResult> nodes = new List<ExportResult>();
